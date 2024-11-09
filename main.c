@@ -1,20 +1,31 @@
 #include <raylib.h>
 #include <time.h>
 
-#define MAX_TAIL_LENGTH 144 
+#define MAX_TAIL_LENGTH 256
 
 int cordgenerator() {
     int position = (rand() % ((600 + 1) / 50)) * 50;
     return position;
 }
+bool doppel(Rectangle player, Rectangle fruit, Rectangle playersecondary[MAX_TAIL_LENGTH], int length){
+     if (CheckCollisionRecs(player, fruit) == true){
+            return true;
+        }
+    for (int i=0; i < length; i++){
+        if (CheckCollisionRecs(fruit, playersecondary[i]) == true){
+            return true;
+        }
+    }
+    return false;
+}
 
 int main(void) {
     srand(time(0));
-
+    
     bool gameOver = false;
 
-    const int screenWidth = 600;
-    const int screenHeight = 600;
+    const int screenWidth = 800;
+    const int screenHeight = 800;
 
     int posX = 300;
     int posY = 300;
@@ -22,8 +33,7 @@ int main(void) {
     int fruitx = cordgenerator();
     int fruity = cordgenerator();
 
-    InitWindow(screenWidth, screenHeight, "snake");
-
+    
     InitAudioDevice();
     Music music = LoadMusicStream("background.mp3"); 
     PlayMusicStream(music); 
@@ -36,7 +46,12 @@ int main(void) {
     Rectangle fruit = {fruitx, fruity, 50, 50};
 
     Rectangle playersec[MAX_TAIL_LENGTH]; 
+    Rectangle buttonEasy = {50, 250, 100, 100};
+    Rectangle buttonMedium = {250, 250, 100, 100};
+    Rectangle buttonHard = {450, 250, 100, 100};
     int tailLength = 0; 
+    
+    InitWindow(screenWidth, screenHeight, "snake");
 
     int direction = 0; 
     SetTargetFPS(10); 
@@ -89,7 +104,14 @@ int main(void) {
             fruit.y = fruity;
         }
 
-        if (posX > 600 || posY > 600 || posX < 0 || posY < 0){
+        while(doppel(player, fruit, playersec, tailLength) == true){
+            fruitx = cordgenerator();
+            fruity = cordgenerator();
+            fruit.x = fruitx;
+            fruit.y = fruity;
+        }
+
+        if (posX > 800 || posY > 800 || posX < 0 || posY < 0){
             gameOver = true;
         }
 
@@ -99,6 +121,9 @@ int main(void) {
             }
         }
 
+        if (tailLength == MAX_TAIL_LENGTH){
+            gameOver == true;
+        }
         
         BeginDrawing();
         ClearBackground(BLACK);
